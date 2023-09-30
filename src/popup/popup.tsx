@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { InputBase, IconButton, Paper, Box, Grid } from "@mui/material";
-import { Add as AddIcon } from "@mui/icons-material";
+import { Add as AddIcon, PictureInPicture } from "@mui/icons-material";
 import WeatherCard from "../components/WeatherCard";
 import {
   setStoredCities,
@@ -12,6 +12,7 @@ import {
 } from "../utils/storage";
 import "fontsource-roboto";
 import "./popup.css";
+import { Messages } from "../utils/messages";
 
 const App: React.FC<{}> = () => {
   const [cities, setCities] = useState<string[]>([]);
@@ -44,6 +45,30 @@ const App: React.FC<{}> = () => {
     setStoredOptions(updatedOptions).then(() => setOptions(updatedOptions));
   };
 
+  const handleOverlayButtonClick = () => {
+    chrome.tabs.query({ active: true }, (tabs) => {
+      if (tabs.length) {
+        chrome.tabs.sendMessage(
+          tabs[0].id,
+          Messages.OVERLAY_TOGGLE,
+          (response) => {}
+        );
+      }
+    });
+  };
+
+  useEffect(() => {
+    chrome.tabs.query({ active: true }, (tabs) => {
+      if (tabs.length) {
+        chrome.tabs.sendMessage(
+          tabs[0].id,
+          Messages.TEMPSCALE_TOGGLE,
+          (response) => {}
+        );
+      }
+    });
+  }, [options]);
+
   useEffect(() => {
     getStoredCities().then((storedCities) => setCities(storedCities));
     getStoredOptions().then((storedOptions) => setOptions(storedOptions));
@@ -74,6 +99,15 @@ const App: React.FC<{}> = () => {
                   <Box>
                     <IconButton onClick={handleTempScaleButtonClick}>
                       {options.tempScale === "metric" ? "\u2103" : "\u2109"}
+                    </IconButton>
+                  </Box>
+                </Paper>
+              </Grid>
+              <Grid item>
+                <Paper>
+                  <Box>
+                    <IconButton onClick={handleOverlayButtonClick}>
+                      <PictureInPicture />
                     </IconButton>
                   </Box>
                 </Paper>

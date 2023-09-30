@@ -31,13 +31,12 @@ export default function WeatherCard({ city, tempScale, onDelete }: Props) {
     fetchOpenWeatherData(city, tempScale)
       .then((data) => {
         if (isMounted) {
-          console.log(data);
           setWeatherData(data);
           setCardState(WeatherCardState.READY);
         }
       })
       .catch((error) => {
-        console.log(error);
+        console.log(error.message);
         setCardState(WeatherCardState.ERROR);
       });
 
@@ -49,7 +48,7 @@ export default function WeatherCard({ city, tempScale, onDelete }: Props) {
   if (cardState === WeatherCardState.ERROR) {
     return (
       <WeatherCardContainer onDelete={onDelete}>
-        <Typography component="p">
+        <Typography component="p" className="WeatherCardError">
           {cardState === WeatherCardState.ERROR &&
             "Could not retrieve data from this city."}
         </Typography>

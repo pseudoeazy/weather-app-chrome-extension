@@ -1,4 +1,4 @@
-# React Chrome Extension Boilerplate
+# React Chrome Weather Extension 
 
 ## Getting Started
 

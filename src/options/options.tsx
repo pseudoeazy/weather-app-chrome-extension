@@ -19,6 +19,7 @@ import "fontsource-roboto";
 import "./options.css";
 
 type FormState = "ready" | "save";
+
 const App: React.FC<{}> = () => {
   const [options, setOptions] = useState<LocalStorageOptions | null>(null);
   const [formState, setFormState] = useState<FormState>("ready");
@@ -37,6 +38,7 @@ const App: React.FC<{}> = () => {
       hasStorageOverlay: hasOverlay,
     });
   };
+
   const handleSaveButtonClick = () => {
     setFormState("save");
     setStoredOptions(options).then(() => {
@@ -51,53 +53,53 @@ const App: React.FC<{}> = () => {
       setOptions(storedOptions);
     });
   }, []);
-  if (!options) {
-    return null;
-  }
+
   return (
     <Box mx="10%" my="2%">
       <Card>
         <CardContent>
-          <Grid container direction="column" spacing={4}>
-            <Grid item>
-              <Typography variant="h4" component="h4">
-                Weather Extension Options
-              </Typography>
+          {options && (
+            <Grid container direction="column" spacing={4}>
+              <Grid item>
+                <Typography variant="h4" component="h4">
+                  Weather Extension Options
+                </Typography>
+              </Grid>
+              <Grid item>
+                <Typography variant="body1" component="p">
+                  Home city name
+                </Typography>
+                <TextField
+                  fullWidth
+                  placeholder="Enter a home city name"
+                  value={options.homeCity}
+                  onChange={(e) => handleHomeCityChange(e.target.value)}
+                  disabled={isSavingData}
+                />
+              </Grid>
+              <Grid item>
+                <Typography variant="body1" component="p">
+                  Overlay on Webpage
+                </Typography>
+                <Switch
+                  color="primary"
+                  checked={options.hasStorageOverlay}
+                  disabled={isSavingData}
+                  onChange={(e) => handleOverlayChange(e.target.checked)}
+                />
+              </Grid>
+              <Grid item>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleSaveButtonClick}
+                  disabled={isSavingData}
+                >
+                  {isSavingData ? "Saving..." : "Save"}
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item>
-              <Typography variant="body1" component="p">
-                Home city name
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="Enter a home city name"
-                value={options.homeCity}
-                onChange={(e) => handleHomeCityChange(e.target.value)}
-                disabled={isSavingData}
-              />
-            </Grid>
-            <Grid item>
-              <Typography variant="body1" component="p">
-                Overlay on Webpage
-              </Typography>
-              <Switch
-                color="primary"
-                checked={options.hasStorageOverlay}
-                disabled={isSavingData}
-                onChange={(e) => handleOverlayChange(e.target.checked)}
-              />
-            </Grid>
-            <Grid item>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSaveButtonClick}
-                disabled={isSavingData}
-              >
-                {isSavingData ? "Saving..." : "Save"}
-              </Button>
-            </Grid>
-          </Grid>
+          )}
         </CardContent>
       </Card>
     </Box>

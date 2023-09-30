@@ -4,10 +4,27 @@ import { Card } from "@mui/material";
 import WeatherCard from "../components/WeatherCard";
 import "./contentScript.css";
 import { LocalStorageOptions, getStoredOptions } from "../utils/storage";
+import { Messages } from "../utils/messages";
 
 const App: React.FC<{}> = () => {
   const [options, setOptions] = useState<LocalStorageOptions | null>(null);
   const [isActive, setIsActive] = useState<boolean>(false);
+
+  useEffect(() => {
+    chrome.runtime.onMessage.addListener((message) => {
+      if (message === Messages.OVERLAY_TOGGLE) {
+        setIsActive(!isActive);
+      }
+    });
+  }, [isActive]);
+
+  useEffect(() => {
+    chrome.runtime.onMessage.addListener((message) => {
+      if (message === Messages.TEMPSCALE_TOGGLE) {
+        getStoredOptions().then((storedOptions) => setOptions(storedOptions));
+      }
+    });
+  }, [options]);
 
   useEffect(() => {
     getStoredOptions().then((storedOptions) => {
@@ -15,7 +32,7 @@ const App: React.FC<{}> = () => {
       setIsActive(storedOptions.hasStorageOverlay);
     });
   }, []);
-  console.log("Hello from content script", { options, isActive });
+
   return (
     <>
       {isActive && (

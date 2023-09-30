@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 import { InputBase, IconButton, Paper, Box, Grid } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
-import WeatherCard from "./WeatherCard";
+import WeatherCard from "../components/WeatherCard";
 import {
   setStoredCities,
   getStoredCities,
@@ -16,10 +16,7 @@ import "./popup.css";
 const App: React.FC<{}> = () => {
   const [cities, setCities] = useState<string[]>([]);
   const [cityInput, setCityInput] = useState<string>("");
-  const [options, setOptions] = useState<LocalStorageOptions>({
-    tempScale: "metric",
-    homeCity: "",
-  });
+  const [options, setOptions] = useState<LocalStorageOptions | null>(null);
 
   const handleCityButtonClick = () => {
     if (!cityInput) {
@@ -36,9 +33,7 @@ const App: React.FC<{}> = () => {
   const handleCityDeleteButtonClick = (index: number) => {
     cities.splice(index, 1);
     const updatedCities = [...cities];
-    setStoredCities(updatedCities).then(() => {
-      setCities(updatedCities);
-    });
+    setStoredCities(updatedCities).then(() => setCities(updatedCities));
   };
 
   const handleTempScaleButtonClick = () => {
@@ -46,9 +41,7 @@ const App: React.FC<{}> = () => {
       ...options,
       tempScale: options.tempScale === "metric" ? "imperial" : "metric",
     };
-    setStoredOptions(updatedOptions).then(() => {
-      setOptions(updatedOptions);
-    });
+    setStoredOptions(updatedOptions).then(() => setOptions(updatedOptions));
   };
 
   useEffect(() => {
@@ -58,49 +51,61 @@ const App: React.FC<{}> = () => {
 
   return (
     <Box>
-      <Box mx="8px" my="16px">
-        <Grid container justifyContent="space-evenly">
-          <Grid item>
-            <Paper>
-              <Box px="8px" py="5px">
-                <InputBase
-                  placeholder="Add a city name"
-                  value={cityInput}
-                  onChange={(e) => setCityInput(e.target.value)}
-                />
-                <IconButton onClick={handleCityButtonClick}>
-                  <AddIcon />
-                </IconButton>
-              </Box>
-            </Paper>
-          </Grid>
-          <Grid item>
-            <Paper>
-              <Box>
-                <IconButton onClick={handleTempScaleButtonClick}>
-                  {options.tempScale === "metric" ? "\u2103" : "\u2109"}
-                </IconButton>
-              </Box>
-            </Paper>
-          </Grid>
-        </Grid>
-      </Box>
-      {options.homeCity && (
-        <WeatherCard city={options.homeCity} tempScale={options.tempScale} />
+      {options && (
+        <>
+          <Box mx="8px" my="16px">
+            <Grid container justifyContent="space-evenly">
+              <Grid item>
+                <Paper>
+                  <Box px="8px" py="5px">
+                    <InputBase
+                      placeholder="Add a city name"
+                      value={cityInput}
+                      onChange={(e) => setCityInput(e.target.value)}
+                    />
+                    <IconButton onClick={handleCityButtonClick}>
+                      <AddIcon />
+                    </IconButton>
+                  </Box>
+                </Paper>
+              </Grid>
+              <Grid item>
+                <Paper>
+                  <Box>
+                    <IconButton onClick={handleTempScaleButtonClick}>
+                      {options.tempScale === "metric" ? "\u2103" : "\u2109"}
+                    </IconButton>
+                  </Box>
+                </Paper>
+              </Grid>
+            </Grid>
+          </Box>
+          {options.homeCity && (
+            <WeatherCard
+              city={options.homeCity}
+              tempScale={options.tempScale}
+            />
+          )}
+          {cities.map((city, idx) => (
+            <WeatherCard
+              key={idx}
+              tempScale={options.tempScale}
+              city={city}
+              onDelete={() => handleCityDeleteButtonClick(idx)}
+            />
+          ))}
+        </>
       )}
-      {cities.map((city, idx) => (
-        <WeatherCard
-          key={idx}
-          tempScale={options.tempScale}
-          city={city}
-          onDelete={() => handleCityDeleteButtonClick(idx)}
-        />
-      ))}
       <Box height="16px" />
     </Box>
   );
 };
 
-const root = document.createElement("div");
-document.body.appendChild(root);
-ReactDOM.render(<App />, root);
+const container = document.createElement("div");
+document.body.appendChild(container);
+const root = ReactDOM.createRoot(container);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);

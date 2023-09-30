@@ -19,6 +19,7 @@ enum WeatherCardState {
   READY = "READY",
   ERROR = "ERROR",
 }
+
 export default function WeatherCard({ city, tempScale, onDelete }: Props) {
   const [weatherData, setWeatherData] = useState<OpenWeatherData | null>(null);
   const [cardState, setCardState] = useState<WeatherCardState>(
@@ -26,16 +27,23 @@ export default function WeatherCard({ city, tempScale, onDelete }: Props) {
   );
 
   useEffect(() => {
+    let isMounted = true;
     fetchOpenWeatherData(city, tempScale)
       .then((data) => {
-        console.log(data);
-        setWeatherData(data);
-        setCardState(WeatherCardState.READY);
+        if (isMounted) {
+          console.log(data);
+          setWeatherData(data);
+          setCardState(WeatherCardState.READY);
+        }
       })
       .catch((error) => {
         console.log(error);
         setCardState(WeatherCardState.ERROR);
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, [city, tempScale]);
 
   if (cardState === WeatherCardState.ERROR) {

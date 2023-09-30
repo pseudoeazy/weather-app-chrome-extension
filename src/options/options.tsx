@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 import {
   Card,
   CardContent,
@@ -8,6 +8,7 @@ import {
   Box,
   TextField,
   Button,
+  Switch,
 } from "@mui/material";
 import {
   LocalStorageOptions,
@@ -30,6 +31,12 @@ const App: React.FC<{}> = () => {
     });
   };
 
+  const handleOverlayChange = (hasOverlay: boolean) => {
+    setOptions({
+      ...options,
+      hasStorageOverlay: hasOverlay,
+    });
+  };
   const handleSaveButtonClick = () => {
     setFormState("save");
     setStoredOptions(options).then(() => {
@@ -70,6 +77,17 @@ const App: React.FC<{}> = () => {
               />
             </Grid>
             <Grid item>
+              <Typography variant="body1" component="p">
+                Overlay on Webpage
+              </Typography>
+              <Switch
+                color="primary"
+                checked={options.hasStorageOverlay}
+                disabled={isSavingData}
+                onChange={(e) => handleOverlayChange(e.target.checked)}
+              />
+            </Grid>
+            <Grid item>
               <Button
                 variant="contained"
                 color="primary"
@@ -86,6 +104,11 @@ const App: React.FC<{}> = () => {
   );
 };
 
-const root = document.createElement("div");
-document.body.appendChild(root);
-ReactDOM.render(<App />, root);
+const container = document.createElement("div");
+document.body.appendChild(container);
+const root = ReactDOM.createRoot(container);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
